@@ -23,11 +23,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload())
+
 db.connect((err)=>{
   if(err){
-    console.log('Connection Error');
+    console.log('Connection Error'+err);
   }else{
-    console.log('Database Connected');
+    console.log('Database Connected to port 27017');
   }
 })
 
