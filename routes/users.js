@@ -57,4 +57,8 @@ router.get('/logout',(req,res)=>{
   res.redirect('/')
 })
 
+router.get('/cart',(req,res)=>{
+  res.render('user/cart')
+})
+
 module.exports = router;
