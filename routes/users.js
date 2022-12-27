@@ -3,7 +3,14 @@ var router = express.Router();
 var productHelper  = require('../helpers/product-helpers')
 const userHelpers = require('../helpers/user-helpers')
 
-// create application/x-www-form-urlencoded parser
+const verifyLogin=(req,res,next)=>{
+  if(req.session.loggedIn){
+    next()
+  }else{
+    res.redirect('/login')
+  }
+}
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -57,8 +64,11 @@ router.get('/logout',(req,res)=>{
   res.redirect('/')
 })
 
-router.get('/cart',(req,res)=>{
+router.get('/cart',verifyLogin,(req,res)=>{
+
   res.render('user/cart')
 })
+
+
 
 module.exports = router;
