@@ -51,6 +51,12 @@ router.post('/edit-product/:id',(req,res)=>{
   // console.log(req.params.id);
   productHelper.updateProduct(req.params.id,req.body).then(()=>{
     res.redirect('/admin')
+    // If the photo is updated
+    if(req.files.Image){
+      let id = req.params.id
+      let image=req.files.Image
+      image.mv('./public/product-images/'+id+'.jpg',)
+    }
   })
 })
 module.exports = router;
