@@ -20,7 +20,7 @@ app.engine('hbs',hbs.engine({extname:'hbs',defaultLayout:'layout',layoutsDir:__d
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-
+var session = require('express-session')
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload())
-
+app.use(session({secret:"Key",cookie:{maxAge:60000}}))
 
 db.connect((err)=>{
   if(err){
