@@ -38,14 +38,11 @@ router.get('/signup',(req,res)=>{
 })
 
 router.post('/signup',(req,res)=>{
-  const name = req.body
-  // console.log(name);
-  // console.log('call camed');
-
   userHelpers.doSignup(req.body).then((response)=>{
     console.log(response);
   })
 })
+
 router.post('/login',(req,res)=>{
   userHelpers.doLogin(req.body).then((response)=>{
     if(response.status){
