@@ -1,6 +1,7 @@
 var db=require('../config/connections')
 var collection = require('../config/collections')
 const bcrypt = require('bcrypt')
+const { response } = require('express')
 module.exports={
     doSignup:(userData)=>{
         //console.log(userData);
@@ -9,6 +10,9 @@ module.exports={
             userData.Password=await bcrypt.hash(userData.Password,10)
             db.get().collection(collection.USER_COLLECTION).insertOne(userData).then((data)=>{
                 resolve(data.insertedId)
+                req.session.loggedIn=true
+                req.session.user=response
+                res.redirect('/')
             })
         })
         
