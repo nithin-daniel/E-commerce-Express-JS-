@@ -46,27 +46,44 @@ module.exports={
     },
 
     addToCart:(proId,userId)=>{
+        let proObj = {
+            item:objectId(proId),
+            quantity:1
+        }
+
         // it check whether it has a cart document 
 
         return new Promise(async (resolve,reject)=>{
             let userCart=await db.get().collection(collection.CART_COLLECTION).findOne({user:ObjectId(userId)})
             if(userCart){
-                // If the cart exists
-                db.get().collection(collection.CART_COLLECTION)
-                .updateOne({user:ObjectId(userId)},
-                    {
+                let proExist = userCart.products.findIndex(product=> product.item===proId)
+                if (proExist!=-1){
+                    db.get().collection(collection.CART_COLLECTION).updateOne({
+                        'products.item':objectId(proId)},
+                        {
+                            $inc:{'products.$.quantity':1}
+                        }
+                        ).then(()=>{
+                            resolve()
+                        })
+                }else{
+                        // If the cart exists
+                        db.get().collection(collection.CART_COLLECTION)
+                        .updateOne({user:ObjectId(userId)},
+                            {
 
-                        $push:{products:objectId(proId)}
+                                $push:{products:proObj}
 
-                    }
-                ).then((response)=>{
-                    resolve()
-                })
+                            }
+                        ).then((response)=>{
+                            resolve()
+                        })
+                }
             }else{
                 // It will create a new cart doccument
                 let cartObj={
                     user: objectId(userId),
-                    products:[objectId(proId)]
+                    products:[proObj]
                 }
                 db.get().collection(collection.CART_COLLECTION).insertOne(cartObj).then((response)=>{
                     resolve()
@@ -82,23 +99,41 @@ module.exports={
                     $match:{user:objectId(userId)}
                 },
                 {
+                    $unwind:'$products'
+                },
+                {
+                    $project:{
+                        item:'$products.item',
+                        quantity:'$product.quantity'
+                    }
+                },
+                {
                     $lookup:{
                         from:collection.PRODUCT_COLLECTION,
-                        let :{proList:'$products'},
-                        pipeline:[
-                            {
-                                $match:{
-                                    $expr:{
-                                        $in:['$_id',"$$proList"]
-                                    }
-                                }
-                            }
-                        ],
-                        as:'cartItems'
+                        localField:'$item',
+                        foreignField:'_id',
+                        as:'products'
                     }
                 }
+                // {
+                //     $lookup:{
+                //         from:collection.PRODUCT_COLLECTION,
+                //         let :{prodList:'$products'},
+                //         pipeline:[
+                //             {
+                //                 $match:{
+                //                     $expr:{
+                //                         $in:['$_id',"$$prodList"]
+                //                     }
+                //                 }
+                //             }
+                //         ],
+                //         as:'cartItems'
+                //     }
+                // }
             ]).toArray()
-            resolve(cartItems[0].cartItems.length)
+            console.log(cartItems[0].products);
+            resolve(cartItems[0].cartItems)
         })
     },
 
